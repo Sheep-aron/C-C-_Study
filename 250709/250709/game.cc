@@ -9,6 +9,7 @@ void initBoard(std::vector<std::vector<char>>& board, int row, int col)
 // 打印棋盘
 void displayBoard(const std::vector<std::vector<char>>& board, int row, int col)
 {
+	std::cout << std::endl;
 	int i = 0; 
 	for (i = 0; i < row; ++i)
 	{
@@ -21,6 +22,7 @@ void displayBoard(const std::vector<std::vector<char>>& board, int row, int col)
 		if (i < row - 1)
 			std::cout << "\n---|---|---\n";
 	}
+	std::cout << std::endl;
 }
 
 void playerMove(std::vector<std::vector<char>>& board, int row, int col)
@@ -44,7 +46,7 @@ void playerMove(std::vector<std::vector<char>>& board, int row, int col)
 
 void computerMove(std::vector<std::vector<char>>& board, int row, int col)
 {
-	std::cout << "电脑下棋:>\n";
+	std::cout << "\n电脑下棋:>\n";
 	std::random_device rd;
 	std::mt19937 gen(rd());
 
@@ -54,7 +56,7 @@ void computerMove(std::vector<std::vector<char>>& board, int row, int col)
 		int y = std::uniform_int_distribution<>(0, col - 1)(gen);
 		if (board[x][y] == ' ')
 		{
-			board[x][y] = '*';
+			board[x][y] = '#';
 			break;
 		}
 	}
@@ -75,26 +77,25 @@ int isFull(const std::vector<std::vector<char>>& board, int row, int col)
 
 char isWin(const std::vector<std::vector<char>>& board, int row, int col)
 {
-	// 检查行
-	for (int i = 0; i < row; ++i)
+	int i = 0;
+	for (i = 0; i < row; ++i)
 	{
-		if (board[i][0] != ' ' && std::all_of(board[i].begin(), board[i].end(), [&](char c) { return c == board[i][0]; }))
-			return board[i][0];
+		if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2])
+			return board[i][0]; // 横向胜利
 	}
-	// 检查列
-	for (int j = 0; j < col; ++j)
+
+	for (i = 0; i < row; ++i)
 	{
-		char first = board[0][j];
-		if (first != ' ' && std::all_of(board.begin(), board.end(), [&](const std::vector<char>& r) { return r[j] == first; }))
-			return first;
+		if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[1][i] == board[2][i])
+			return board[0][i]; // 纵向胜利
 	}
-	// 检查主对角线
-	char first = board[0][0];
-	if (first != ' ' && std::all_of(board.begin(), board.end(), [&](const std::vector<char>& r) { return r[&r - &board[0]] == first; }))
-		return first;
-	// 检查副对角线
-	first = board[0][col - 1];
-	if (first != ' ' && std::all_of(board.begin(), board.end(), [&](const std::vector<char>& r) { return r[col - (&r - &board[0]) - 1] == first; }))
-		return first;
-	return ' '; // 没有赢家
+
+	if (board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2])
+		return board[0][0]; // 主对角线胜利
+	if (board[0][2] != ' ' && board[0][2] == board[1][1] && board[1][1] == board[2][0])
+		return board[0][2]; // 副对角线胜利
+
+	if (isFull(board, row, col))
+		return 'Q'; // 平局
+	return 'C';
 }
